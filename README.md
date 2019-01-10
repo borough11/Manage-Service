@@ -12,6 +12,7 @@ This would hopefully result in restarted services. It worked … *sometimes*. Wh
 
 This isn't really the greatest solution; so I set about replacing this with a PowerShell script to manage the services, not just for this particular piece of software but to make it generic so it can be used for any service(s)/computer(s). It allows you to send 'Start', 'Stop', 'Restart', 'Pause' or 'Resume' actions to a service on the local or remote computer. I included complete logging, error handling and an optional forcekill option if the service doesn't stop nicely after x seconds.
 
+Initially the best script I came across on the net was Khoa Nguyen's "Stop, Start, Restart Windows Service" so I based my script on this: https://www.syspanda.com/index.php/2017/10/04/stop-start-restart-windows-services-powershell-script/ by Khoa Nguyen on October 4, 2017
 
 ## Usage - *From command line...*
 dot source the Manage-Service.ps1 script to expose access to the Manage-Service function
