@@ -57,9 +57,10 @@ function Manage-Service {
     .NOTES
         Author: Steve Geall
         Date: December 2018
-        Version: 1.1
+        Version: 1.2
 
         History: v1.1 - 19/12/2018 - Removed unnecessary write-host and unnecessary commented lines
+                 v1.2 - 28/12/2018 - Altered method to kill process on remote machine (because stop-process won't work)
                         24/01/2019 - Converted to .psm1 module
 
         Based on Stop, Start, Restart Windows Services – PowerShell Script
@@ -123,15 +124,17 @@ function Manage-Service {
                 $processId = Get-WmiObject win32_service -ComputerName $ComputerName | Where { $_.Name -like "$($Service.Name)" } | Select -ExpandProperty ProcessId
                 If ($processId -gt 0) {
                     Write-Output "Stopping process ($($Service.Name)) with Id: $processId"
-                    # Stop-Process doesn't have a -ComputerName parameter option so use Get-Process and pipe it through
-                    Get-Process -Id $processId -ComputerName $ComputerName | Stop-Process -Force -Verbose
+                    # Stop-Process doesn't have a -ComputerName parameter option so use Get-Process and pipe it through BUT you get the following error: Feature is not supported for remote machines, so will use Get-WmiObject .Terminate
+                    #Get-Process -Id $processId -ComputerName $ComputerName | Stop-Process -Force -Verbose # <--- does not work
+                    $processWmiObject = Get-WmiObject Win32_Process -ComputerName $ComputerName | Where { $_.ProcessId -eq $processId }
+                    $processWmiObject.Terminate() | Out-Null
                     $stopCount = 0
                     Do {
                         Sleep -Seconds 1
                         Write-Output "waiting for process with Id: $processId to stop..."
                         $processExists = Get-Process -Id $processId -ErrorAction SilentlyContinue
                         $stopCount++
-                    } Until (!$processExists -Or $stopCount -gt 60)
+                    } Until (!$processExists -Or $stopCount -gt 60) #60s sanity timeout
                 } Else {
                     Write-Output "processId is: $processId, nothing to kill."
                 }
