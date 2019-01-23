@@ -26,32 +26,29 @@ function Manage-Service {
       process instead
 
     .EXAMPLE
-        PS C:\> . .\Manage-Service.ps1
+        PS C:\> Import-Module .\Manage-Service.psm1
         PS C:\> Manage-Service -ServiceName Telephony -Action Restart
 
         Description:
-        dot source the Manage-Service.ps1 script to expose access to the Manage-Service function
-        Will stop the Telephony service, wait until complete (default timeout 5 seconds), then Start
-        the Telephony service, on the local computer
+        dot source the Manage-Service.psm1 script to expose access to the Manage-Service function
+        Will stop the Telephony service, wait until complete (default timeout 5 seconds), then Start the Telephony service, on the local computer
 
     .EXAMPLE
-        PS C:\> . .\Manage-Service.ps1
+        PS C:\> Import-Module .\Manage-Service.psm1
         PS C:\> Manage-Service -ServiceName Telephony -Action Stop -ComputerName SRV-APPSERVER
 
         Description:
-        dot source the Manage-Service.ps1 script to expose access to the Manage-Service function
-        Will Stop the Telephony service, wait until complete (default timeout 5 seconds), on the
-        remote computer SRV-APPSERVER
+        dot source the Manage-Service.psm1 script to expose access to the Manage-Service function
+        Will Stop the Telephony service, wait until complete (default timeout 5 seconds), on the remote computer SRV-APPSERVER
 
     .EXAMPLE
-        PS C:\> . .\Manage-Service.ps1
+        PS C:\> Import-Module .\Manage-Service.psm1
         PS C:\> Manage-Service -ServiceName Telephony -Action Restart -Timeout 8 -ForceKill -ComputerName SRV-APPSERVER
 
         Description:
-        dot source the Manage-Service.ps1 script to expose access to the Manage-Service function
-        Will Stop the Telephony service, wait until complete (manual timeout 8 seconds), if not
-        stopped after 8 seconds then the process id is obtained and the processed killed, then start
-        the Telephony service, on the remote computer SRV-APPSERVER
+        Import the module Manage-Service.psm1 to expose access to the Manage-Service and Test-Service functions
+        Will Stop the Telephony service, wait until complete (manual timeout 8 seconds), if not stopped after 8 seconds then the process id
+        is obtained and the processed killed, then start the Telephony service, on the remote computer SRV-APPSERVER
 
     .OUTPUTS
         To session and to transcript file.
