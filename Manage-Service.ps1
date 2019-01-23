@@ -80,7 +80,9 @@ function Manage-Service {
         [switch]$ForceKill,
         [int]$Timeout=5
     )
-
+    
+    #requires -Version 3.0
+    
     #region Prepare
     # start transcript (stop first in case it's already running in this session)
     try {
@@ -98,11 +100,12 @@ function Manage-Service {
     ForEach ($parameter in $parameterList) {
         Get-Variable -Name $parameter.Values.Name -ErrorAction SilentlyContinue | ft
     }
+    $currentSessionUserContext = ([Security.Principal.WindowsIdentity]::GetCurrent()).Name
     Write-Output `r`n
     #endregion Prepare
 
     #region ServiceActionFunctions
-    # stop
+    # stop function
     function StopService {
         param (
             [object[]]$Service,
@@ -140,9 +143,9 @@ function Manage-Service {
         }
         $Service = Test-Service -ServiceName $Service.DisplayName -ComputerName $ComputerName
         Write-Output "Current status: Service $($Service.DisplayName) is [$($Service.Status)]."
-    }
+    } # end stop function
 
-    # start
+    # start function
     function StartService {
         param (
             [object[]]$Service,
@@ -158,9 +161,9 @@ function Manage-Service {
         }
         $Service = Test-Service -ServiceName $Service.DisplayName -ComputerName $ComputerName
         Write-Output "Current status: Service $($Service.DisplayName) is [$($Service.Status)]."
-    }
+    } # end start function
 
-    # pause
+    # pause function
     function SuspendService {
         param (
             [object[]]$Service,
@@ -176,9 +179,9 @@ function Manage-Service {
         }
         $Service = Test-Service -ServiceName $Service.DisplayName -ComputerName $ComputerName
         Write-Output "Current status: Service $($Service.DisplayName) is [$($Service.Status)]."
-    }
+    } # end pause function
 
-    # resume
+    # resume function
     function ResumeService {
         param (
             [object[]]$Service,
@@ -194,7 +197,7 @@ function Manage-Service {
         }
         $Service = Test-Service -ServiceName $Service.DisplayName -ComputerName $ComputerName
         Write-Output "Current status: Service $($Service.DisplayName) is [$($Service.Status)]."
-    }
+    } # end resume function
     #endregion ServiceActionFunctions
 
     #region MainScript
@@ -283,15 +286,13 @@ function Manage-Service {
 
     } Else {
         # condition if provided ServiceName is invalid
-        Write-Output "Service: $ServiceName not found"
+        Write-Output "Service: ""$ServiceName"" not found or not accessible running as this user: $currentSessionUserContext"
     }
 
     # output final status of service
     If ($Service) {
         $finalStatus = Test-Service -ServiceName $ServiceName -ComputerName $ComputerName | Select MachineName,DisplayName,Name,Status
         Write-Output $finalStatus | Format-Table
-    } Else {
-        Return "Service: $ServiceName not found"
     }
     #endregion MainScript
 
@@ -319,17 +320,33 @@ function Manage-Service {
 function Test-Service {
     <#
     .SYNOPSIS
-    Solely just for checking a service and returning its current status/state
+      Solely just for checking a service and returning its current status/state
 
     .DESCRIPTION
-    Sets a var to null, then attempts to assign service status to it and returns that var
-    Allows external helper scripts to use this function (when this file is dot sourced)
+      Sets a var to null, then attempts to assign service status to it and returns that var
+      Allows external helper scripts to use this function (when this file is dot sourced)
 
     .PARAMETER ServiceName (Mandatory)
-    The DisplayName OR Name of the service
+      DisplayName OR Name of the service
 
     .PARAMETER ComputerName
-    The name of the remote computer, otherwise it's set to the local computer
+      Set to remote computername, otherwise it's set to the local computer
+
+    .EXAMPLE
+      Test-Service -ServiceName "Telephony"
+
+      Description
+      -----------
+      This will return the service object of "Telephony" on the local machine otherwise
+      if no matching service or the service isn't accessible then it returns $null
+
+    .EXAMPLE
+      Test-Service -ServiceName "Telephony" -ComputerName "SRV-APP01"
+
+      Description
+      -----------
+      This will return the service object of "Telephony" on the computer SRV-APP01 otherwise
+      if no matching service or the service isn't accessible then it returns $null
     #>
     param (
         [Parameter(Mandatory=$true)]
