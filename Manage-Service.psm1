@@ -60,6 +60,7 @@ function Manage-Service {
         Version: 1.1
 
         History: v1.1 - 19/12/2018 - Removed unnecessary write-host and unnecessary commented lines
+                        24/01/2019 - Converted to .psm1 module
 
         Based on Stop, Start, Restart Windows Services – PowerShell Script
         by Khoa Nguyen on October 4, 2017
