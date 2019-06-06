@@ -62,6 +62,12 @@ function Manage-Service {
         History: v1.1 - 19/12/2018 - Removed unnecessary write-host and unnecessary commented lines
                  v1.2 - 28/12/2018 - Altered method to kill process on remote machine (because stop-process won't work)
                         24/01/2019 - Converted to .psm1 module
+                 v1.3 - 28/05/2019 - Replaced Stop-Service cmdlet with $Service.Stop(); as this allows for use of
+                                     the $Service.WaitForStatus to enable the timeout
+                                   - As above did the same for:
+                                     Start-Service -> $Service.Start();
+                                     Suspend-Service -> $Service.Pause();
+                                     Resume-Service -> $Service.Resume();
 
         Based on Stop, Start, Restart Windows Services – PowerShell Script
         by Khoa Nguyen on October 4, 2017
@@ -111,9 +117,11 @@ function Manage-Service {
             [string]$ComputerName,
             $timeout
         )
+        Write-Output "timeout is: $timeout"
         Try {
             Write-Output "Stopping service $($Service.DisplayName)..."
-            Stop-Service -InputObject $Service -Force
+            # Stop-Service -InputObject $Service -Force ### doesn't work with .WaitForStatus used below
+            $Service.Stop();
             $Service.WaitForStatus('Stopped',$timeout)
         } Catch {
             Write-Output "ERROR: $($PSItem.Exception.Message)"
@@ -153,9 +161,11 @@ function Manage-Service {
             [string]$ComputerName,
             $timeout
         )
+        Write-Output "timeout is: $timeout"
         Try {
             Write-Output "Stating service $($Service.DisplayName)..."
-            Start-Service -InputObject $Service -ErrorAction Stop
+            # Start-Service -InputObject $Service -ErrorAction Stop
+            $Service.Start();
             $Service.WaitForStatus('Running',$timeout)
         } Catch {
             Write-Output "error: $($PSItem.Exception.Message)"
@@ -171,9 +181,11 @@ function Manage-Service {
             [string]$ComputerName,
             $timeout
         )
+        Write-Output "timeout is: $timeout"
         Try {
             Write-Output "Suspending service $($Service.DisplayName)..."
-            Suspend-Service -InputObject $Service -ErrorAction Stop
+            # Suspend-Service -InputObject $Service -ErrorAction Stop
+            $Service.Pause();
             $Service.WaitForStatus('Paused',$timeout)
         } Catch {
             Write-Output "error: $($PSItem.Exception.Message)"
@@ -189,9 +201,11 @@ function Manage-Service {
             [string]$ComputerName,
             $timeout
         )
+        Write-Output "timeout is: $timeout"
         Try {
             Write-Output "Resuming service $($Service.DisplayName)..."
-            Resume-Service -InputObject $Service -ErrorAction Stop
+            # Resume-Service -InputObject $Service -ErrorAction Stop
+            $Service.Resume();
             $Service.WaitForStatus('Running',$timeout)
         } Catch {
             Write-Output "error: $($PSItem.Exception.Message)"
